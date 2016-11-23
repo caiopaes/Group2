@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
 
-
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.fftpack import fft
 
+
+
 """
 functions space
 """
+
+############### Signal Generator #################
+
 #create a sin function signal with 3 base frequencies and its 3 first harmonics
 def signalgenerator(freq1, freq2 = 0, freq3 = 0):
     
@@ -35,47 +39,72 @@ def signalgenerator(freq1, freq2 = 0, freq3 = 0):
     return signal
 
 
+################### csv_data #####################
 
+# Reads a .csv file and converts the data to a time vector t and a vector x
+# with the measured values
+def csv_data(file_path):
+    return np.genfromtxt(file_path,delimiter=',', unpack=True)
+
+
+
+################## freqZoom #######################
 
 # Given 2 frequency values, creates a plot of the FFT in the interval
 # delimited by them
 def freqZoom(yf, xf, lowFreq, highFreq, limit = False):
     
     N = np.int(np.prod(yf.shape))
+    Fs = 2*xf[-1]
     ax = plt.figure().add_subplot(111)  
-    ax.plot(xf[int(lowFreq):int(highFreq) + 1], 2.0/N * np.abs(yf[int(lowFreq):int(highFreq) + 1]))
+    ax.plot(xf[int(lowFreq*N/Fs) : int(highFreq*N/Fs) + 1], 2.0/N * np.abs(yf[int(lowFreq*N/Fs):int(highFreq*N/Fs) + 1]))
     ax.grid()
     ax.set_xlabel('Frequency (Hz)')
     ax.set_ylabel('Amplitude')
-    ax.set_xlim([int(lowFreq), int(highFreq)])
+    #ax.set_xlim([int(lowFreq), int(highFreq)])
     message = "Ok"
     if limit != False:     
         ax.hlines(limit, int(lowFreq), int(highFreq) + 1, color = 'r')
-        if np.max(2.0/N * np.abs(yf[int(lowFreq):int(highFreq) + 1])) >= limit:
+        if np.max(2.0/N * np.abs(yf[int(lowFreq*N/Fs):int(highFreq*N/Fs) + 1])) >= limit:
             message = "Danger"
     ax.set_title("%.1f Hz to %.1f Hz - %s"%(lowFreq,highFreq,message))
 
 #TODO: add a feature that monitor the amplitudes within the interval of freqZoom
 
 
+
+
 """
 values space
 """
+
+###### If generating a signal ######
 amplitude = 1.0
 
 #in Hz
 freq1 = 1000.0
 freq2 = 755.0
 freq3 = 355.0
+#t = np.arange(0.0,1,25e-6)  
 
-t = np.arange(0.0,1,25e-6)
+####################################
+
+###### If using a csv file #########
+
+file_name = "car_engine.csv"
+
+
+####################################
+
 #TODO: whats the best step for t variable so that we can have a good measuement?(considering the amount of harmonics)
 """
 process
 """
 
-signal = signalgenerator(freq1,freq2,freq3)
-    
+
+#signal = signalgenerator(freq1,freq2,freq3)
+t, signal = csv_data("CSV_FILES/" + file_name)
+  
 N = np.int(np.prod(t.shape))# list length
 Fs = 1/(t[1]-t[0]) 	# sample frequency
 T = 1/Fs;
@@ -93,7 +122,7 @@ ax1.plot(t, signal)
 ax1.set_xlabel('Time (seconds)')
 ax1.set_ylabel('Amplitude')
 ax1.grid()
-ax1.axis([0.0,0.1,-10*amplitude,10*amplitude])
+#ax1.axis([0.0,0.1,-10*amplitude,10*amplitude])
 ax1.set_title("Time Domain")
 
 #FFT
@@ -107,8 +136,8 @@ ax2.set_xlabel('Frequency (Hz)')
 ax2.set_ylabel('Amplitude')
 ax2.set_title("Frequency Domain")
 
-freqZoom(yf,xf,0,1500, 0.8)
-freqZoom(yf,xf,355,1000)
+#freqZoom(yf,xf,0,1500, 0.8)
+freqZoom(yf,xf,0,2000,0.05)
 
 
 plt.show()
