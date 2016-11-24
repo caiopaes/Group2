@@ -46,6 +46,7 @@ IN PROGRESS:
 
 5) Which sampling frequency would simulate a reasonable sensor?
    For test purposes.
+   	Reference: https://www.raspberrypi.org/forums/viewtopic.php?f=32&t=91530
 
 6) Which version of Python is used by RaspberryPi: 2 or 3? Should the code be able to run on both?
    
