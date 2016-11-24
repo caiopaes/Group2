@@ -1,7 +1,7 @@
 Include lists of assumptions and requirements to run software.
 
 4.1.1 User Classes and Characteristics
-Various users will have access to the developed Vibration Analysis Tool. These users
+ Various users will have access to the developed Vibration Analysis Tool. These users
 differ based on their frequency of use of the tool, the subset of functions they access,
 and their technical expertise. Mainly, the users will either be technicians acquiring
 data on site, or expert engineers who would like to look at the acquired data more in
