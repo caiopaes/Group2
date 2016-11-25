@@ -3,8 +3,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.fftpack import fft
-from tkinter import *
-from tkinter import filedialog
+
+
 
 """
 functions space
@@ -13,26 +13,29 @@ functions space
 ############### Signal Generator #################
 
 #create a sin function signal with 3 base frequencies and its 3 first harmonics
-def signalgenerator(frequencies, Fs, noise = True, signal = 0):
+def signalgenerator(freq1, freq2 = 0, freq3 = 0):
     
-    for freq in frequencies:
-        #base frequencies
-        wave = (amplitude) * np.sin(2.0*np.pi*freq*t)
-        
-        #1st harmonics
-        harmonic1 = (amplitude/2) * np.sin(2.0*np.pi*2*freq*t)
-        
-        signal += wave + harmonic1
+    #base frequencies
+    wave1 = (amplitude) * np.sin(2.0*np.pi*freq1*t)
+    wave2 = (amplitude) * np.sin(2.0*np.pi*freq2*t)
+    wave3 = (amplitude) * np.sin(2.0*np.pi*freq3*t)
+    
+    #1st harmonics
+    wave4 = (amplitude/2) * np.sin(2.0*np.pi*2*freq1*t)
+    wave5 = (amplitude/2) * np.sin(2.0*np.pi*2*freq2*t)
+    wave6 = (amplitude/2) * np.sin(2.0*np.pi*2*freq3*t)
 
+    
     #creates noise
     # 0 is the mean of the normal distribution you are choosing from
     # 1 is the standard deviation of the normal distribution
     # last one is the number of elements you get in array noise
     
-    noise = np.random.normal(0,1,Fs)
+    noise = np.random.normal(0,1,40000)
 #TODO: create a method that generates more waves and maybe add noise
 
-    signal += noise
+    
+    signal = wave1 + wave2 + wave3 + wave4 + wave5 + wave6 + noise
     return signal
 
 
@@ -79,15 +82,16 @@ values space
 amplitude = 1.0
 
 #in Hz
-frequencies = [1000.0, 755.0, 355.0]
-
+freq1 = 1000.0
+freq2 = 755.0
+freq3 = 355.0
 #t = np.arange(0.0,1,25e-6)  
 
 ####################################
 
 ###### If using a csv file #########
 
-#file_name = "car_engine.csv"
+file_name = "car_engine.csv"
 
 
 ####################################
@@ -99,18 +103,12 @@ process
 
 
 #signal = signalgenerator(freq1,freq2,freq3)
-#t, signal = csv_data("CSV_FILES/" + file_name)
-
-root = Tk()
-root.withdraw()
-t, signal = csv_data(filedialog.askopenfilename())
-root.destroy()
-
-
+t, signal = csv_data("CSV_FILES/" + file_name)
+  
 N = np.int(np.prod(t.shape))# list length
 Fs = 1/(t[1]-t[0]) 	# sample frequency
 T = 1/Fs;
-print("# Samples:", N)
+print "# Samples:", N
 
 
 """
