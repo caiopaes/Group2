@@ -5,6 +5,13 @@ import numpy as np
 from scipy.fftpack import fft
 from tkinter import *
 from tkinter import filedialog
+import pandas as pd
+import plotly
+import plotly.plotly as py
+from plotly.graph_objs import *
+
+plotly.tools.set_credentials_file(username='victorpimenta', api_key='znZcYtEF4Mq7VqMhgRiy')
+
 
 """
 functions space
@@ -87,7 +94,7 @@ frequencies = [1000.0, 755.0, 355.0]
 
 ###### If using a csv file #########
 
-#file_name = "car_engine.csv"
+file_name = "car_engine.csv"
 
 
 ####################################
@@ -99,13 +106,16 @@ process
 
 
 #signal = signalgenerator(freq1,freq2,freq3)
-#t, signal = csv_data("CSV_FILES/" + file_name)
+t, signal = csv_data("CSV_FILES/" + file_name)
 
-root = Tk()
-root.withdraw()
-t, signal = csv_data(filedialog.askopenfilename())
-root.destroy()
+## To include in the final version
 
+#root = Tk()
+#root.withdraw()
+#t, signal = csv_data(filedialog.askopenfilename())
+#root.destroy()
+
+##
 
 N = np.int(np.prod(t.shape))# list length
 Fs = 1/(t[1]-t[0]) 	# sample frequency
@@ -126,20 +136,69 @@ ax1.set_ylabel('Amplitude')
 ax1.grid()
 #ax1.axis([0.0,0.1,-10*amplitude,10*amplitude])
 ax1.set_title("Time Domain")
+plt.savefig('htmlreport/img/time.png')
+plt.clf()
 
 #FFT
 fig2 = plt.figure(2)
 ax2 = fig2.add_subplot(111)
 xf = np.linspace(0.0, 1.0/(2.0*T), N/2)
 yf = fft(signal)
-ax2.plot(xf, 2.0/N * np.abs(yf[0:np.int(N/2)]))
+yplot = 2.0/N * np.abs(yf[0:np.int(N/2)])
+ax2.plot(xf, yplot)
 ax2.grid()
 ax2.set_xlabel('Frequency (Hz)')
 ax2.set_ylabel('Amplitude')
 ax2.set_title("Frequency Domain")
+plt.savefig('htmlreport/img/freq.png')
+
+
 
 #freqZoom(yf,xf,0,1500, 0.8)
 freqZoom(yf,xf,0,2000,0.05)
 
 
 plt.show()
+
+#%% Plotly Dynamic Plot
+
+#data1 = Scattergl(x = t, y = signal, name = '<b>Time-domain signal</b>')
+#data2 = Bar(x = xf, y = yplot, name = '<b>FFT</b> Spectrogram')
+#data = [data2]
+#fig = dict(data = data)
+##time_url = py.plot_mpl(fig2, filename='time-domain')
+
+#%% HTML Report
+
+df = pd.DataFrame({'i':t, 'rms':signal})
+sample = df.head(10)
+html_table = sample.to_html().replace('<table border="1" class="dataframe">','<table class="table table-striped">') # use bootstrap styling
+
+html_string = '''
+<html>
+    <head>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+        <style>body{ margin:0 100; background:whitesmoke; }</style>
+    </head>
+    <body>
+        <h1>Vibrations Analysis Tool - Group 2 Inc.</h1>
+
+        <!-- *** Section 1 *** --->
+        <h2>Section 1: Time Domain Signal</h2>
+        <img src="img/time.png" alt="Time Domain Signal" style="width:432px;height:288px;">
+        <p>Include maximum value, average, etc</p>
+        
+        <!-- *** Section 2 *** --->
+        <h2>Section 2: FFT Spectrogram (Fast Fourier Analysis)</h2>
+        <<img src="img/time.png" alt="Time Domain Signal" style="width:432px;height:288px;">
+        <p>Include maximum value, average, etc</p>
+        
+        <h3>Reference table: rms value</h3>
+        ''' + html_table + '''
+    </body>
+</html>'''
+    
+f = open('htmlreport/report.html','w')
+f.write(html_string)
+f.close()
+
