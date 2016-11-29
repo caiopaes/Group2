@@ -1,18 +1,30 @@
 # -*- coding: utf-8 -*-
 
+#%%
+"""
+Packages
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.fftpack import fft
 from tkinter import *
 from tkinter import filedialog
 import pandas as pd
+
 import plotly
 import plotly.plotly as py
 from plotly.graph_objs import *
-
 plotly.tools.set_credentials_file(username='victorpimenta', api_key='znZcYtEF4Mq7VqMhgRiy')
 
+"""
+Variables
+"""
 
+threshold = 0.8 # Alterar segundo a norma ISO 2372
+
+
+#%%
 """
 functions space
 """
@@ -58,8 +70,7 @@ def csv_data(file_path):
 # delimited by them
 def freqZoom(yf, xf, lowFreq, highFreq, limit = False):
     
-    N = np.int(np.prod(yf.shape))
-    Fs = 2*xf[-1]
+    N = np.int(np.prod(yf.shape)) # Attention to yf.shape, which will supply (total N)/2
     ax = plt.figure().add_subplot(111)  
     ax.plot(xf[int(lowFreq*N/Fs) : int(highFreq*N/Fs) + 1], 2.0/N * np.abs(yf[int(lowFreq*N/Fs):int(highFreq*N/Fs) + 1]))
     ax.grid()
@@ -122,9 +133,28 @@ Fs = 1/(t[1]-t[0]) 	# sample frequency
 T = 1/Fs;
 print("# Samples:", N)
 
-
+#%%
 """
-plots
+FFT
+"""
+
+yf = np.fft.fft(signal)
+xf = np.fft.fftfreq(t.shape[-1], T)
+xf = xf[0:np.int(N/2)]
+yf = 2.0/N * np.abs(yf[0:np.int(N/2)])
+
+
+#%%
+"""
+Storage of processed data into data frames for easier handling
+"""
+
+df = pd.DataFrame({'i':t, 'signal':signal})
+
+
+#%%
+"""
+Plots
 """
 
 #Plot xy
@@ -142,25 +172,22 @@ plt.clf()
 #FFT
 fig2 = plt.figure(2)
 ax2 = fig2.add_subplot(111)
-xf = np.linspace(0.0, 1.0/(2.0*T), N/2)
-yf = fft(signal)
-yplot = 2.0/N * np.abs(yf[0:np.int(N/2)])
-ax2.plot(xf, yplot)
+ax2.plot(xf, yf)
 ax2.grid()
 ax2.set_xlabel('Frequency (Hz)')
 ax2.set_ylabel('Amplitude')
 ax2.set_title("Frequency Domain")
 plt.savefig('htmlreport/img/freq.png')
 
-
-
 #freqZoom(yf,xf,0,1500, 0.8)
 freqZoom(yf,xf,0,2000,0.05)
 
-
 plt.show()
 
-#%% Plotly Dynamic Plot
+#%%
+"""
+Plotly Dynamic Plot
+"""
 
 #data1 = Scattergl(x = t, y = signal, name = '<b>Time-domain signal</b>')
 #data2 = Bar(x = xf, y = yplot, name = '<b>FFT</b> Spectrogram')
@@ -168,9 +195,12 @@ plt.show()
 #fig = dict(data = data)
 ##time_url = py.plot_mpl(fig2, filename='time-domain')
 
-#%% HTML Report
 
-df = pd.DataFrame({'i':t, 'rms':signal})
+#%%
+"""
+HTML Report
+"""
+
 sample = df.head(10)
 html_table = sample.to_html().replace('<table border="1" class="dataframe">','<table class="table table-striped">') # use bootstrap styling
 
