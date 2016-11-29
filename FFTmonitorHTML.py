@@ -196,7 +196,7 @@ ax1.set_ylabel('Amplitude')
 ax1.grid()
 #ax1.axis([0.0,0.1,-10*amplitude,10*amplitude])
 ax1.set_title("Time Domain")
-plt.savefig('htmlreport/img/time.png')
+plt.savefig('img/time.png')
 plt.clf()
 
 #FFT
@@ -209,7 +209,7 @@ ax2.grid()
 ax2.set_xlabel('Frequency (Hz)')
 ax2.set_ylabel('Amplitude')
 ax2.set_title("Frequency Domain")
-plt.savefig('htmlreport/img/freq.png')
+plt.savefig('img/freq.png')
 
 #freqZoom(yf,xf,0,1500, 0.8)
 freqZoom(yf,xf,0,2000,threshold)
@@ -265,7 +265,7 @@ html_string = '''
     </body>
 </html>'''
 
-f = open('htmlreport/report.html','w')
+f = open('index.html','w')
 f.write(html_string)
 f.close()
 
