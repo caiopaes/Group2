@@ -140,8 +140,8 @@ t, signal = csv_data("CSV_FILES/" + file_name)
 ##
 
 N = np.int(np.prod(t.shape))# list length
-Fs = 1/(t[1]-t[0]) 	# sample frequency
-T = 1/Fs;
+T = t[1]-t[0] 	# sample frequency
+Fs = 1/T
 print("# Samples:", N)
 
 #%%
@@ -157,11 +157,14 @@ yf = 2.0/N * np.abs(yf[0:np.int(N/2)])
 max_index = xf[yf.argmax()]
 min_dist = findNearest(max_index, xf)
 
-peaks = peak.indexes(yf, thres = 0.25, min_dist = min_dist)
-
 # Threshold normalizes values to a number between 0 and 1
 # Minimum distance between peaks will be adopted as 60% of the biggest amplitude (other peaks probably will be its harmonics)
+peaks = peak.indexes(yf, thres = 0.25, min_dist = min_dist)
 
+# Assuming the rotational speed to be expressed by the frequency with maximum amplitude
+omega = 60*max_index # Conversion from Hz to RPM
+maxAmp = max(yf)
+maxHarmAmp = sorted(yf[peaks])[-2]
 
 
 #%%
@@ -169,7 +172,14 @@ peaks = peak.indexes(yf, thres = 0.25, min_dist = min_dist)
 Storage of processed data into data frames for easier handling
 """
 
-df = pd.DataFrame({'i':t, 'signal':signal})
+time_table = pd.DataFrame({'i':t, 'signal':signal})
+
+freq_table = pd.DataFrame({'Information' : ['Maximum amplitude', 'Rotational speed', 'Maximum amplitude @ harmonics'],
+                           'Value' : [maxAmp, omega, maxHarmAmp],
+                           'Unit' : ['mm/s', 'RPM', 'mm/s']})
+freq_table = freq_table.set_index('Information')
+freq_table.index.name = None
+freq_table = freq_table[['Value', 'Unit']]
 
 
 #%%
@@ -223,8 +233,10 @@ Plotly Dynamic Plot
 HTML Report
 """
 
-sample = df.head(10)
-html_table = sample.to_html().replace('<table border="1" class="dataframe">','<table class="table table-striped">') # use bootstrap styling
+sample = time_table.head(10)
+time_table_html = sample.to_html().replace('<table border="1" class="dataframe">','<table class="table table-striped">') # use bootstrap styling
+
+freq_table_html = freq_table.to_html().replace('<table border="1" class="dataframe">','<table class="table table-striped">')
 
 html_string = '''
 <html>
@@ -242,11 +254,14 @@ html_string = '''
 
         <!-- *** Section 2 *** --->
         <h2>Section 2: FFT Spectrogram (Fast Fourier Analysis)</h2>
-        <<img src="img/time.png" alt="Time Domain Signal" style="width:432px;height:288px;">
+        <<img src="img/freq.png" alt="Time Domain Signal" style="width:432px;height:288px;">
         <p>Include maximum value, average, etc</p>
 
-        <h3>Reference table: rms value</h3>
-        ''' + html_table + '''
+        <h3>Informations extracted from FFT</h3>
+        ''' + freq_table_html + '''
+
+        <h3>Reference table: rms value (time domain)</h3>
+        ''' + time_table_html + '''
     </body>
 </html>'''
 
