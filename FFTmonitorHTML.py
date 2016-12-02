@@ -24,7 +24,7 @@ Variables
 """
 
 threshold = 0.05 # Changes according to standards (ISO 2372)
-
+Noise_Percentage = 0 # Expected Noise amplitude / Peak Amplitude
 
 #%%
 """
@@ -79,7 +79,7 @@ def findNearest(value, array):
 
 # Given 2 frequency values, creates a plot of the FFT in the interval
 # delimited by them
-def freqZoom(yf, xf, lowFreq, highFreq, threshold = False):
+def freqZoom(yf, xf, lowFreq, highFreq, noisePct = 0, threshold = False):
 
     lowFreqIndex = findNearest(lowFreq, xf)
     highFreqIndex = findNearest(highFreq, xf)
@@ -88,12 +88,13 @@ def freqZoom(yf, xf, lowFreq, highFreq, threshold = False):
     ax.grid()
     ax.set_xlabel('Frequency (Hz)')
     ax.set_ylabel('Amplitude')
-    #ax.set_xlim([int(lowFreq), int(highFreq)])
-    message = "Ok"
+    peakAmp = np.max(yf[lowFreqIndex:highFreqIndex])
+    ax.set_ylim([peakAmp*noisePct, peakAmp])
+    message = "NO DANGER"
     if threshold != False:
         ax.hlines(threshold, int(lowFreq), int(highFreq), color = 'r')
-        if np.max(yf[lowFreqIndex:highFreqIndex]) >= threshold:
-            message = "Danger"
+        if peakAmp >= threshold:
+            message = "DANGER"
     ax.set_title("%.1f Hz to %.1f Hz - %s"%(lowFreq,highFreq,message))
 
 #TODO: add a feature that monitor the amplitudes within the interval of freqZoom
@@ -213,7 +214,7 @@ ax2.set_title("Frequency Domain")
 plt.savefig('img/freq.png')
 
 #freqZoom(yf,xf,0,1500, 0.8)
-freqZoom(yf,xf,0,2000,threshold)
+freqZoom(yf,xf,0,2000, Noise_Percentage, threshold)
 
 plt.show()
 
