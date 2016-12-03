@@ -97,10 +97,10 @@ def freqZoom(yf, xf, lowFreq, highFreq, noisePct = 0, threshold = False):
             message = "DANGER"
     ax.set_title("%.1f Hz to %.1f Hz - %s"%(lowFreq,highFreq,message))
 
-#TODO: add a feature that monitor the amplitudes within the interval of freqZoom
+######## Any other analysis function should go here #########
 
 
-
+#############################################################
 
 """
 values space
@@ -213,10 +213,20 @@ ax2.set_ylabel('Amplitude')
 ax2.set_title("Frequency Domain")
 plt.savefig('img/freq.png')
 
+########## Any other routine should go here ################
+
+############################################################
+
+"""
+Space to call functions
+"""
+
 #freqZoom(yf,xf,0,1500, 0.8)
 freqZoom(yf,xf,0,2000, Noise_Percentage, threshold)
 
 plt.show()
+
+#############################################################
 
     #%%
 """
